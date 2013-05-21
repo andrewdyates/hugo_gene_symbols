@@ -53,7 +53,12 @@ class Hugo:
       self.ensembl[d["Ensembl Gene ID"]] = sym
 
   def find_sym(self, s, allow_dupe=False):
-    """Return official gene symbol given a putative gene symbol."""
+    """Return official gene symbol given a putative gene symbol.
+
+    if allow_dupe, may return a set of symbols.
+    if no unique symbol, return None.
+    otherwise, return string of best symbol.
+    """
     if s in self.offical:
       return s
     if s in self.unique_alias:

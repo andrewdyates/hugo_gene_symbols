@@ -7,9 +7,9 @@ USE:
 """
 import cPickle as pickle
 import os.path
-
+import hugo
 
 def load(fname=None):
   if fname is None:
-    fname = os.path.join(os.path.dirname(os.path.abspath(__file__)), FNAME_PKL)
+    fname = os.path.join(os.path.dirname(os.path.abspath(__file__)), hugo.FNAME_PKL)
   return pickle.load(open(fname))
