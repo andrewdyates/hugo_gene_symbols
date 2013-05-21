@@ -3,14 +3,17 @@
 
 EXPECTED HEADERS
 HGNC ID	Approved Symbol	Approved Name	Status	Previous Symbols	Synonyms	Chromosome	Date Modified	Accession Numbers	Entrez Gene ID	Ensembl Gene ID	RefSeq IDs	UniProt ID
+
+python parse_hugo.py
 """
 EXPECTED_HEADER = "HGNC ID	Approved Symbol	Approved Name	Status	Previous Symbols	Synonyms	Chromosome	Date Modified	Accession Numbers	Entrez Gene ID	Ensembl Gene ID	RefSeq IDs	UniProt ID"
 
 COL_NAMES = "HGNC ID", "Approved Symbol", "Approved Name", "Status", "Previous Symbols", "Synonyms", "Chromosome", "Date Modified", "Accession Numbers", "Entrez Gene ID", "Ensembl Gene ID", "RefSeq IDs", "UniProt ID"
 
 FNAME = "hgnc_downloads.txt"
+FNAME_PKL = "HUGO_may21.pkl"
 
-class HUGO:
+class Hugo:
   def __init__(self, fname=FNAME):
     fp = open(fname)
     header = fp.next().strip()
@@ -21,6 +24,10 @@ class HUGO:
     self.offical = {}
     self.unique_alias = {}
     self.dupe_alias = {}
+    self.entrez = {}
+    self.uniprot = {}
+    self.refseq = {}
+    self.ensembl = {}
     
     for line in fp:
       row = line.strip('\r\n').split('\t')
@@ -31,21 +38,48 @@ class HUGO:
 
       # Save map
       sym = d["Approved Symbol"]
-      altsyms = set(d["Previous Symbols"].split(", ") + d["Previous Synonyms"].split(', '))
-      self.offical[sym] = d.update({'altsyms': altsyms})
+      altsyms = set(d["Previous Symbols"].split(", ") + d["Synonyms"].split(', '))
+      d.update({'altsyms': altsyms})
+      self.offical[sym] = d
 
       # Alternate symbol mapping
       for s in altsyms:
-        assert not (s in unique_alias and s in dupe_alias)
-        if s not in unique_alias and s not in dupe_alias:
-          unique_alias[s] = sym
-        else if s in unique_alias:
-          alt_sym = unique_alias.pop(s, None)
-          dupe_alias[s] = set([alt_sym, sym])
+        assert not (s in self.unique_alias and s in self.dupe_alias)
+        if s not in self.unique_alias and s not in self.dupe_alias:
+          self.unique_alias[s] = sym
+        elif s in self.unique_alias:
+          alt_sym = self.unique_alias.pop(s, None)
+          self.dupe_alias[s] = set([alt_sym, sym])
         else:
-          dupe_alias[s].add(sym)
+          self.dupe_alias[s].add(sym)
           
-      # Entrez Gene ID
-      # UniProt ID
-      # RefSeq IDs
-      # Ensembl Gene ID
+      self.entrez[d["Entrez Gene ID"]] = sym
+      self.uniprot[d["UniProt ID"]] = sym
+      for refseq in d["RefSeq IDs"].split(', '):
+        self.refseq[refseq] = sym
+      self.ensembl[d["Ensembl Gene ID"]] = sym
+
+  def find_sym(self, s, allow_dupe=False):
+    """Return official gene symbol given a putative gene symbol."""
+    if s in self.offical:
+      return s
+    if s in self.unique_alias:
+      return self.unique_alias[s]
+    if s in self.dupe_alias:
+      if allow_dupe:
+        return self.dupe_alias[s]
+      else:
+        return None
+    return None
+
+
+def main():
+  import cPickle as pickle
+  print "Loading %s into Hugo object..." % FNAME
+  H = Hugo()
+  print "Saving pickled Hugo object to %s..." % FNAME_PKL
+  pickle.dump(H, open(FNAME_PKL,"w"), -1)
+
+
+if __name__ == "__main__":
+  main()
