@@ -33,10 +33,13 @@ class Hugo:
       sym = d["Approved Symbol"]
       altsyms = set(d["Previous Symbols"].split(", ") + d["Synonyms"].split(', '))
       d.update({'altsyms': altsyms})
+      assert sym
       self.official[sym] = d
 
       # Alternate symbol mapping
       for s in altsyms:
+        if not s:
+          continue
         assert not (s in self.unique_alias and s in self.dupe_alias)
         if s not in self.unique_alias and s not in self.dupe_alias:
           self.unique_alias[s] = sym
