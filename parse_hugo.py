@@ -8,7 +8,7 @@ python parse_hugo.py
 """
 import cPickle as pickle
 from __init__ import *
-from hugo_gene_symbols.hugo import Hugo
+from hugo_gene_symbols.hugo import Hugo, FNAME, FNAME_PKL
 
 def main():
   print "Loading %s into Hugo object..." % FNAME

@@ -14,7 +14,7 @@ class Hugo:
       raise Exception, "HUGO Header format not recognized. See EXPECTED_HEADER."
 
     self.withdrawn = {}
-    self.offical = {}
+    self.official = {}
     self.unique_alias = {}
     self.dupe_alias = {}
     self.entrez = {}
@@ -33,7 +33,7 @@ class Hugo:
       sym = d["Approved Symbol"]
       altsyms = set(d["Previous Symbols"].split(", ") + d["Synonyms"].split(', '))
       d.update({'altsyms': altsyms})
-      self.offical[sym] = d
+      self.official[sym] = d
 
       # Alternate symbol mapping
       for s in altsyms:
@@ -59,7 +59,7 @@ class Hugo:
     if no unique symbol, return None.
     otherwise, return string of best symbol.
     """
-    if s in self.offical:
+    if s in self.official:
       return s
     if s in self.unique_alias:
       return self.unique_alias[s]
