@@ -16,12 +16,28 @@ def main():
   H.from_filename = FNAME
   print "Saving pickled Hugo object to %s..." % FNAME_PKL
   pickle.dump(H, open(FNAME_PKL,"w"), -1)
-  idx_fname = FNAME_PKL.rpartition('.')[0]+".idx.txt"
-  print "Saving index as plain text to %s..." % idx_fname
-  fp = open(idx_fname,"w")
+  # list of all official symbols
+  official_fname = FNAME_PKL.rpartition('.')[0]+".official.txt"
+  print "Saving index as plain text to %s..." % official_fname
+  fp = open(official_fname,"w")
   for s in sorted(H.official.keys()):
     fp.write("%s\n"%s)
   fp.close()
+  # unique alias mappings
+  uniquemap_fname = FNAME_PKL.rpartition('.')[0]+".uniquemap.tab"
+  print "Saving unique alias to official symbol mapping to %s..." % uniquemap_fname
+  fp = open(uniquemap_fname,"w")
+  for a in sorted(H.unique_alias):
+    fp.write("%s\t%s\n"%(a,H.unique_alias[a]))
+  fp.close()
+  # aliases that map to multiple official symbols
+  dupemap_fname = FNAME_PKL.rpartition('.')[0]+".dupemap.tab"
+  print "Saving alias to multiple symbol mapping (dupes) to %s..." % dupemap_fname
+  fp = open(dupemap_fname,"w")
+  for a in sorted(H.dupe_alias):
+    fp.write("%s\t%s\n"% (a,"\t".join(sorted(H.dupe_alias[a]))))
+  fp.close()
+    
 
 if __name__ == "__main__":
   main()

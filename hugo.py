@@ -25,12 +25,13 @@ class Hugo:
     for line in fp:
       row = line.strip('\r\n').split('\t')
       d = dict(zip(COL_NAMES, row))
-      if d["Status"] == "Entry Withdrawn":
+      if d["Status"] in ("Entry Withdrawn", "Symbol Withdrawn"):
         self.withdrawn[d["Approved Symbol"].split('~')[0]] = d
         continue
 
       # Save map
       sym = d["Approved Symbol"]
+      if "~" in sym: print "WARNING: possibly withdrawn symbol", sym
       altsyms = set(d["Previous Symbols"].split(", ") + d["Synonyms"].split(', '))
       d.update({'altsyms': altsyms})
       assert sym
