@@ -37,6 +37,18 @@ def main():
   for a in sorted(H.dupe_alias):
     fp.write("%s\t%s\n"% (a,"\t".join(sorted(H.dupe_alias[a]))))
   fp.close()
+  # symbol to entrez ID
+  sym2entrez_fname = FNAME_PKL.rpartition('.')[0]+".sym2entrez.tab"
+  print "Saving sym2entrezsymbol mapping to %s..." % sym2entrez_fname
+  fp = open(sym2entrez_fname,"w")
+  for sym in sorted(H.official):
+    entrez = H.official[sym]["Entrez Gene ID"]
+    fp.write("%s\t%s\n" % (sym,entrez))
+    try:
+      int(entrez)
+    except:
+      print "WARNING: entrez [%s] for sym '%s' is not integer string." % (entrez, sym)
+  
     
 
 if __name__ == "__main__":
